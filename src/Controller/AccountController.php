@@ -29,8 +29,8 @@ class AccountController extends Controller
 
 		foreach( app( 'config' )->get( 'shop.page.account-index' ) as $name )
 		{
-			$params['aiheader'][$name] = Shop::get( $name )->header();
-			$params['aibody'][$name] = Shop::get( $name )->body();
+			$params['aiheader'][$name] = (new Shop())->get()->header();
+			$params['aibody'][$name] = (new Shop())->get()->body();
 		}
 
 		return Response::view( Shop::template( 'account.index' ), $params )
@@ -45,7 +45,7 @@ class AccountController extends Controller
 	 */
 	public function downloadAction()
 	{
-		$response = Shop::get( 'account/download' )->response();
+		$response = (new Shop())->get()->response();
 		return Response::make( (string) $response->getBody(), $response->getStatusCode(), $response->getHeaders() );
 	}
 }

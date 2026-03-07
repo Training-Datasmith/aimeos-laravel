@@ -16,12 +16,7 @@ class Config
 	/**
 	 * @var \Aimeos\Shop\Base\Config[]
 	 */
-	private $objects = [];
-
-	/**
-	 * @var \Aimeos\Shop\Base\Aimeos
-	 */
-	private $aimeos;
+	private array $objects = [];
 
 	/**
 	 * @var \Illuminate\Contracts\Config\Repository
@@ -35,9 +30,8 @@ class Config
 	 * @param \Illuminate\Contracts\Config\Repository $config Configuration object
 	 * @param \Aimeos\Shop\Base\Aimeos $aimeos Aimeos object
 	 */
-	public function __construct( \Illuminate\Contracts\Config\Repository $config, \Aimeos\Shop\Base\Aimeos $aimeos )
+	public function __construct( \Illuminate\Contracts\Config\Repository $config, private readonly \Aimeos\Shop\Base\Aimeos $aimeos )
 	{
-		$this->aimeos = $aimeos;
 		$this->config = $config;
 	}
 
@@ -53,7 +47,7 @@ class Config
 		if( !isset( $this->objects[$type] ) )
 		{
 			$configPaths = $this->aimeos->get()->getConfigPaths();
-			$cfgfile = dirname( dirname( __DIR__ ) ) . '/config/default.php';
+			$cfgfile = dirname(__DIR__, 2) . '/config/default.php';
 
 			$config = new \Aimeos\Base\Config\PHPArray( require $cfgfile, $configPaths );
 

@@ -24,21 +24,6 @@ class Context
 	private $context;
 
 	/**
-	 * @var \Aimeos\Shop\Base\Config
-	 */
-	private $config;
-
-	/**
-	 * @var \Aimeos\Shop\Base\I18n
-	 */
-	private $i18n;
-
-	/**
-	 * @var \Aimeos\Shop\Base\Locale
-	 */
-	private $locale;
-
-	/**
 	 * @var \Illuminate\Session\Store
 	 */
 	private $session;
@@ -52,12 +37,9 @@ class Context
 	 * @param \Aimeos\Shop\Base\Locale $locale Locale object
 	 * @param \Aimeos\Shop\Base\I18n $i18n Internationalisation object
 	 */
-	public function __construct( \Illuminate\Session\Store $session, \Aimeos\Shop\Base\Config $config, \Aimeos\Shop\Base\Locale $locale, \Aimeos\Shop\Base\I18n $i18n )
+	public function __construct( \Illuminate\Session\Store $session, private readonly \Aimeos\Shop\Base\Config $config, private readonly \Aimeos\Shop\Base\Locale $locale, private readonly \Aimeos\Shop\Base\I18n $i18n )
 	{
 		$this->session = $session;
-		$this->config = $config;
-		$this->locale = $locale;
-		$this->i18n = $i18n;
 	}
 
 
@@ -99,7 +81,7 @@ class Context
 		{
 			$localeItem = $this->locale->get( $this->context );
 			$this->context->setLocale( $localeItem );
-			$this->context->setI18n( $this->i18n->get( array( $localeItem->getLanguageId() ) ) );
+			$this->context->setI18n( $this->i18n->get( [ $localeItem->getLanguageId() ] ) );
 
 			$config->apply( $localeItem->getSiteItem()->getConfig() );
 		}
@@ -285,14 +267,12 @@ class Context
 			$context->setUser( function() use ( $context, $userid ) {
 				try {
 					return \Aimeos\MShop::create( $context, 'customer' )->get( $userid, ['group'] );
-				} catch( \Aimeos\MShop\Exception $e ) { // avoid errors if user is assigned to another site
+				} catch( \Aimeos\MShop\Exception ) { // avoid errors if user is assigned to another site
 					return null;
 				}
 			} );
 
-			$context->setGroups( function() use ( $context ) {
-				return $context->user()?->getGroups() ?? [];
-			} );
+			$context->setGroups( fn() => $context->user()?->getGroups() ?? [] );
 
 			$context->setEditor( $guard->user()?->email ?: \Request::ip() );
 		}

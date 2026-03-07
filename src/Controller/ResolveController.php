@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\View;
  */
 class ResolveController extends Controller
 {
-	private static $fcn = [];
+	private static array $fcn = [];
 
 
 	/**
@@ -30,7 +30,7 @@ class ResolveController extends Controller
 	 * @param string $name Name of the resolver function
 	 * @param \Closure $fcn Resolver function
 	 */
-	public static function register( string $name, \Closure $fcn )
+	public static function register( string $name, \Closure $fcn ): void
 	{
 		self::$fcn[$name] = $fcn;
 	}
@@ -41,13 +41,9 @@ class ResolveController extends Controller
 	 */
 	public function __construct()
 	{
-		self::$fcn['product'] = function( \Aimeos\MShop\ContextIface $context, string $path ) {
-			return $this->product( $context, $path );
-		};
+		self::$fcn['product'] = (fn(\Aimeos\MShop\ContextIface $context, string $path) => $this->product( $context, $path ));
 
-		self::$fcn['catalog'] = function( \Aimeos\MShop\ContextIface $context, string $path ) {
-			return $this->catalog( $context, $path );
-		};
+		self::$fcn['catalog'] = (fn(\Aimeos\MShop\ContextIface $context, string $path) => $this->catalog( $context, $path ));
 	}
 
 
@@ -65,7 +61,7 @@ class ResolveController extends Controller
 
 		$context = app( 'aimeos.context' )->get( true );
 
-		foreach( array_reverse( self::$fcn ) as $name => $fcn )
+		foreach( array_reverse( self::$fcn ) as $fcn )
 		{
 			try {
 				return call_user_func_array( $fcn->bindTo( $this, static::class ), [$context, $path] );
@@ -98,7 +94,7 @@ class ResolveController extends Controller
 
 		foreach( app( 'config' )->get( 'shop.page.catalog-tree' ) as $name )
 		{
-			$client = Shop::get( $name );
+			$client = (new Shop())->get();
 
 			$params['aiheader'][$name] = $client->header();
 			$params['aibody'][$name] = $client->body();
@@ -129,7 +125,7 @@ class ResolveController extends Controller
 
 		foreach( app( 'config' )->get( 'shop.page.cms' ) as $name )
 		{
-			$client = Shop::get( $name );
+			$client = (new Shop())->get();
 
 			$params['aiheader'][$name] = $client->header();
 			$params['aibody'][$name] = $client->body();
@@ -160,7 +156,7 @@ class ResolveController extends Controller
 
 		foreach( app( 'config' )->get( 'shop.page.catalog-detail' ) as $name )
 		{
-			$client = Shop::get( $name );
+			$client = (new Shop())->get();
 
 			$params['aiheader'][$name] = $client->header();
 			$params['aibody'][$name] = $client->body();

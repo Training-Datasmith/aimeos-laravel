@@ -27,7 +27,7 @@ abstract class AbstractCommand extends Command
 
 		foreach( (array) $this->option( 'option' ) as $option )
 		{
-			list( $name, $value ) = explode( ':', $option );
+			[$name, $value] = explode( ':', (string) $option );
 			$config->set( $name, $value );
 		}
 

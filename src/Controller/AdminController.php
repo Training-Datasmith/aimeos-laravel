@@ -40,15 +40,15 @@ class AdminController extends Controller
 
 		$context = app( 'aimeos.context' )->get( false );
 		$siteManager = \Aimeos\MShop::create( $context, 'locale/site' );
-		$siteId = current( array_reverse( explode( '.', trim( $request->user()->siteid, '.' ) ) ) );
+		$siteId = current( array_reverse( explode( '.', trim( (string) $request->user()->siteid, '.' ) ) ) );
 		$siteCode = ( $siteId ? $siteManager->get( $siteId )->getCode() : config( 'shop.mshop.locale.site', 'default' ) );
 		$locale = $request->user()->langid ?: config( 'app.locale', 'en' );
 
-		$param = array(
+		$param = [
 			'resource' => config( 'shop.panel', 'dashboard' ),
 			'site' => Route::input( 'site', Request::get( 'site', $siteCode ) ),
 			'locale' => Route::input( 'locale', Request::get( 'locale', $locale ) )
-		);
+		];
 
 		return redirect()->route( 'aimeos_shop_jqadm_search', $param );
 	}

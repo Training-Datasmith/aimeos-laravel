@@ -14,19 +14,11 @@ namespace Aimeos\Shop\Base;
 class I18n
 {
 	/**
-	 * @var \Aimeos\Shop\Base\Aimeos
-	 */
-	private $aimeos;
-
-	/**
 	 * @var \Illuminate\Contracts\Config\Repository
 	 */
 	private $config;
 
-	/**
-	 * @var array
-	 */
-	private $i18n = [];
+	private array $i18n = [];
 
 
 	/**
@@ -35,9 +27,8 @@ class I18n
 	 * @param \Illuminate\Contracts\Config\Repository $config Configuration object
 	 * @param \Aimeos\Shop\Base\Aimeos $aimeos Aimeos object
 	 */
-	public function __construct( \Illuminate\Contracts\Config\Repository $config, \Aimeos\Shop\Base\Aimeos $aimeos )
+	public function __construct( \Illuminate\Contracts\Config\Repository $config, private readonly \Aimeos\Shop\Base\Aimeos $aimeos )
 	{
-		$this->aimeos = $aimeos;
 		$this->config = $config;
 	}
 

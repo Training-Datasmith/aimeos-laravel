@@ -40,11 +40,9 @@ class AccountCommand extends AbstractCommand
 
 
 	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function handle()
+     * Execute the console command.
+     */
+    public function handle(): void
 	{
 		$site = $this->argument( 'site' ) ?: config( 'shop.mshop.locale.site', 'default' );
 
@@ -67,7 +65,7 @@ class AccountCommand extends AbstractCommand
 
 		try {
 			$item = $manager->find( $email );
-		} catch( \Aimeos\MShop\Exception $e ) {
+		} catch( \Aimeos\MShop\Exception ) {
 			$item = $manager->create();
 		}
 
@@ -100,7 +98,7 @@ class AccountCommand extends AbstractCommand
 		}
 
 		if( $this->option( 'editor' ) ) {
-			$user = $this->addGroup( $context, $user, 'editor' );
+			return $this->addGroup( $context, $user, 'editor' );
 		}
 
 		return $user;
@@ -141,7 +139,7 @@ class AccountCommand extends AbstractCommand
 		{
 			$item = $manager->find( $code );
 		}
-		catch( \Aimeos\MShop\Exception $e )
+		catch( \Aimeos\MShop\Exception )
 		{
 			$item = $manager->create();
 			$item->setLabel( $code );

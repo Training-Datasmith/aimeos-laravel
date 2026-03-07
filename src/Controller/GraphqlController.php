@@ -39,7 +39,7 @@ class GraphqlController extends Controller
 		$lang = Request::get( 'locale', config( 'app.locale', 'en' ) );
 
 		$context = app( 'aimeos.context' )->get( false, 'backend' );
-		$context->setI18n( app( 'aimeos.i18n' )->get( array( $lang, 'en' ) ) );
+		$context->setI18n( app( 'aimeos.i18n' )->get( [ $lang, 'en' ] ) );
 		$context->setLocale( app( 'aimeos.locale' )->getBackend( $context, $site ) );
 		$context->setView( app( 'aimeos.view' )->create( $context, [], $lang ) );
 

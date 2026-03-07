@@ -36,18 +36,16 @@ class JobsCommand extends AbstractCommand
 
 
 	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function handle()
+     * Execute the console command.
+     */
+    public function handle(): void
 	{
 		$jobs = $this->argument( 'jobs' );
 		$jobs = !is_array( $jobs ) ? explode( ' ', (string) $jobs ) : $jobs;
 
-		$fcn = function( \Aimeos\MShop\ContextIface $lcontext, \Aimeos\Bootstrap $aimeos ) use ( $jobs )
+		$fcn = function( \Aimeos\MShop\ContextIface $lcontext, \Aimeos\Bootstrap $aimeos ) use ( $jobs ): void
 		{
-			$jobfcn = function( $context, $aimeos, $jobname ) {
+			$jobfcn = function( $context, $aimeos, $jobname ): void {
 				\Aimeos\Controller\Jobs::create( $context, $aimeos, $jobname )->run();
 			};
 

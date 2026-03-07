@@ -31,8 +31,8 @@ class SupplierController extends Controller
 
 			foreach( app( 'config' )->get( 'shop.page.supplier-detail' ) as $name )
 			{
-				$params['aiheader'][$name] = Shop::get( $name )->header();
-				$params['aibody'][$name] = Shop::get( $name )->body();
+				$params['aiheader'][$name] = (new Shop())->get()->header();
+				$params['aibody'][$name] = (new Shop())->get()->body();
 			}
 
 			return Response::view( Shop::template( 'supplier.detail' ), $params )

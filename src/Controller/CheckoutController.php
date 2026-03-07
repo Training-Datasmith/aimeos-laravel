@@ -29,8 +29,8 @@ class CheckoutController extends Controller
 
 		foreach( app( 'config' )->get( 'shop.page.checkout-confirm' ) as $name )
 		{
-			$params['aiheader'][$name] = Shop::get( $name )->header();
-			$params['aibody'][$name] = Shop::get( $name )->body();
+			$params['aiheader'][$name] = (new Shop())->get()->header();
+			$params['aibody'][$name] = (new Shop())->get()->body();
 		}
 
 		return Response::view( Shop::template( 'checkout.confirm' ), $params )
@@ -49,8 +49,8 @@ class CheckoutController extends Controller
 
 		foreach( app( 'config' )->get( 'shop.page.checkout-index' ) as $name )
 		{
-			$params['aiheader'][$name] = Shop::get( $name )->header();
-			$params['aibody'][$name] = Shop::get( $name )->body();
+			$params['aiheader'][$name] = (new Shop())->get()->header();
+			$params['aibody'][$name] = (new Shop())->get()->body();
 		}
 
 		return Response::view( Shop::template( 'checkout.index' ), $params )
@@ -69,8 +69,8 @@ class CheckoutController extends Controller
 
 		foreach( app( 'config' )->get( 'shop.page.checkout-update' ) as $name )
 		{
-			$params['aiheader'][$name] = Shop::get( $name )->header();
-			$params['aibody'][$name] = Shop::get( $name )->body();
+			$params['aiheader'][$name] = (new Shop())->get()->header();
+			$params['aibody'][$name] = (new Shop())->get()->body();
 		}
 
 		return Response::view( Shop::template( 'checkout.update' ), $params )

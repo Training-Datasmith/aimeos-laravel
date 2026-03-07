@@ -16,7 +16,7 @@ if( !function_exists( 'airoute' ) )
 	 * @param  bool  $absolute
 	 * @return string
 	 */
-	function airoute( $name, $parameters = [], $absolute = true )
+	function airoute( $name, array $parameters = [], $absolute = true )
 	{
 		if( $current = Route::current() )
 		{
@@ -59,7 +59,7 @@ if( !function_exists( 'aitrans' ) )
 	 * @param string $locale ISO language code, maybe combine with ISO currency code, e.g. "en_US"
 	 * @return string Translated string
 	 */
-	function aitrans( $singular, array $params = array(), $domain = 'client', $locale = null )
+	function aitrans( $singular, array $params = [], $domain = 'client', $locale = null ): string
 	{
 		$i18n = app( 'aimeos.context' )->get()->i18n( $locale );
 
@@ -81,7 +81,7 @@ if( !function_exists( 'aitransplural' ) )
 	 * @param string $locale ISO language code, maybe combine with ISO currency code, e.g. "en_US"
 	 * @return string Translated string
 	 */
-	function aitransplural( $singular, $plural, $number, array $params = array(), $domain = 'client', $locale = null )
+	function aitransplural( $singular, $plural, $number, array $params = [], $domain = 'client', $locale = null ): string
 	{
 		$i18n = app( 'aimeos.context' )->get()->i18n( $locale );
 

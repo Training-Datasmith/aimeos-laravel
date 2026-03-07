@@ -30,11 +30,9 @@ class ClearCommand extends AbstractCommand
 
 
 	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function handle()
+     * Execute the console command.
+     */
+    public function handle(): void
 	{
 		$this->info( 'Clearing Aimeos cache', 'v' );
 

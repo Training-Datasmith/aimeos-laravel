@@ -17,20 +17,7 @@ use Illuminate\Support\Facades\Route;
  */
 class Support
 {
-	/**
-	 * @var \Aimeos\Shop\Base\Context
-	 */
-	private $context;
-
-	/**
-	 * @var \Aimeos\Shop\Base\Locale
-	 */
-	private $locale;
-
-	/**
-	 * @var array
-	 */
-	private $access = [];
+	private array $access = [];
 
 
 	/**
@@ -39,11 +26,9 @@ class Support
 	 * @param \Aimeos\Shop\Base\Context $context Context provider
 	 * @param \Aimeos\Shop\Base\Locale $locale Locale provider
 	 */
-	public function __construct( \Aimeos\Shop\Base\Context $context, \Aimeos\Shop\Base\Locale $locale )
-	{
-		$this->context = $context;
-		$this->locale = $locale;
-	}
+	public function __construct(private readonly \Aimeos\Shop\Base\Context $context, private readonly \Aimeos\Shop\Base\Locale $locale)
+    {
+    }
 
 
 	/**
@@ -105,11 +90,11 @@ class Support
 		$manager = \Aimeos\MShop::create( $context, 'customer/lists' );
 
 		$search = $manager->filter()->slice( 0, 1 );
-		$expr = array(
+		$expr = [
 			$search->compare( '==', 'customer.lists.parentid', $userid ),
 			$search->compare( '==', 'customer.lists.refid', $groupIds ),
 			$search->compare( '==', 'customer.lists.domain', 'group' ),
-		);
+		];
 		$search->setConditions( $search->combine( '&&', $expr ) );
 
 		return !$manager->search( $search )->isEmpty();

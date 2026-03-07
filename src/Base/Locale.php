@@ -87,7 +87,7 @@ class Locale
 
 		try {
 			$localeItem = $localeManager->bootstrap( $site, '', '', false, null, true );
-		} catch( \Aimeos\MShop\Exception $e ) {
+		} catch( \Aimeos\MShop\Exception ) {
 			$localeItem = $localeManager->create();
 		}
 

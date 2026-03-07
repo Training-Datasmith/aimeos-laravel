@@ -23,30 +23,17 @@ class View
 	 */
 	private $config;
 
-	/**
-	 * @var \Aimeos\Shop\Base\I18n
-	 */
-	private $i18n;
 
 	/**
-	 * @var \Aimeos\Shop\Base\Support
-	 */
-	private $support;
-
-
-	/**
-	 * Initializes the object
-	 *
-	 * @param \Illuminate\Contracts\Config\Repository $config Configuration object
-	 * @param \Aimeos\Shop\Base\I18n $i18n I18n object
-	 * @param \Aimeos\Shop\Base\Support $support Support object
-	 */
-	public function __construct( \Illuminate\Contracts\Config\Repository $config,
-		\Aimeos\Shop\Base\I18n $i18n, \Aimeos\Shop\Base\Support $support )
+     * Initializes the object
+     *
+     * @param \Illuminate\Contracts\Config\Repository $config Configuration object
+     * @param \Aimeos\Shop\Base\I18n $i18n I18n object
+     */
+    public function __construct( \Illuminate\Contracts\Config\Repository $config,
+		private readonly \Aimeos\Shop\Base\I18n $i18n )
 	{
-		$this->i18n = $i18n;
 		$this->config = $config;
-		$this->support = $support;
 	}
 
 
@@ -62,7 +49,7 @@ class View
 		string $locale = null ) : \Aimeos\Base\View\Iface
 	{
 		$engine = new \Aimeos\Base\View\Engine\Blade( app( 'Illuminate\Contracts\View\Factory' ) );
-		$view = new \Aimeos\Base\View\Standard( $templatePaths, array( '.blade.php' => $engine ) );
+		$view = new \Aimeos\Base\View\Standard( $templatePaths, [ '.blade.php' => $engine ] );
 
 		$config = $context->config();
 		$session = $context->session();
@@ -178,7 +165,7 @@ class View
 	 */
 	protected function addParam( \Aimeos\Base\View\Iface $view ) : \Aimeos\Base\View\Iface
 	{
-		$params = ( Route::current() ? Route::current()->parameters() : array() ) + Request::all();
+		$params = ( Route::current() ? Route::current()->parameters() : [] ) + Request::all();
 		$helper = new \Aimeos\Base\View\Helper\Param\Standard( $view, $params );
 		$view->addHelper( 'param', $helper );
 
@@ -243,7 +230,7 @@ class View
 	{
 		if( $locale !== null )
 		{
-			$i18n = $this->i18n->get( array( $locale ) );
+			$i18n = $this->i18n->get( [ $locale ] );
 			$translation = $i18n[$locale];
 		}
 		else

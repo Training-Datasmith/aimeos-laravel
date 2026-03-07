@@ -30,8 +30,8 @@ class PageController extends Controller
 
 		foreach( app( 'config' )->get( 'shop.page.cms', ['cms/page', 'catalog/tree', 'basket/mini'] ) as $name )
 		{
-			$params['aiheader'][$name] = Shop::get( $name )->header();
-			$params['aibody'][$name] = Shop::get( $name )->body();
+			$params['aiheader'][$name] = (new Shop())->get()->header();
+			$params['aibody'][$name] = (new Shop())->get()->body();
 		}
 
 		if( empty( $params['aibody']['cms/page'] ) ) {

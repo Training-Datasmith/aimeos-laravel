@@ -18,7 +18,7 @@ class Composer
 	 * @param \Composer\Script\Event $event Event instance
 	 * @throws \RuntimeException If an error occured
 	 */
-	public static function join( \Composer\Script\Event $event )
+	public static function join( \Composer\Script\Event $event ): void
 	{
 		try
 		{
@@ -55,6 +55,6 @@ class Composer
 					->getContents( 'github.com', 'https://api.github.com/graphql', false, $options );
 			}
 		}
-		catch( \Exception $e ) {}
+		catch( \Exception ) {}
 	}
 }

@@ -39,11 +39,9 @@ class SetupCommand extends AbstractCommand
 
 
 	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function handle()
+     * Execute the console command.
+     */
+    public function handle(): void
 	{
 		\Aimeos\MShop::cache( false );
 		\Aimeos\MAdmin::cache( false );
