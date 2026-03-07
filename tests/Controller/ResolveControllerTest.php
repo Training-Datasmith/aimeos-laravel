@@ -1,41 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 class ResolveControllerTest extends AimeosTestAbstract
 {
-	public function testCategory()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+    public function testCategory()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\ResolveController@indexAction', ['site' => 'unittest', 'path' => 'tee'] );
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\ResolveController@indexAction', ['site' => 'unittest', 'path' => 'tee']);
 
-		$this->assertResponseOk();
-		$this->assertStringContainsString( '<div class="section aimeos catalog-filter', $response->getContent() );
-	}
+        $this->assertResponseOk();
+        $this->assertStringContainsString('<div class="section aimeos catalog-filter', $response->getContent());
+    }
 
+    public function testProduct()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-	public function testProduct()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\ResolveController@indexAction', ['site' => 'unittest', 'path' => 'Cafe_Noire_Cappuccino']);
 
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\ResolveController@indexAction', ['site' => 'unittest', 'path' => 'Cafe_Noire_Cappuccino'] );
+        $this->assertResponseOk();
+        $this->assertStringContainsString('<div class="aimeos catalog-detail', $response->getContent());
+    }
 
-		$this->assertResponseOk();
-		$this->assertStringContainsString( '<div class="aimeos catalog-detail', $response->getContent() );
-	}
+    public function testNotFound()
+    {
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\ResolveController@indexAction', ['site' => 'unittest', 'path' => 'invalid']);
 
+        $response->assertStatus(404);
+    }
 
-	public function testNotFound()
-	{
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\ResolveController@indexAction', ['site' => 'unittest', 'path' => 'invalid'] );
+    protected function getEnvironmentSetUp($app)
+    {
+        parent::getEnvironmentSetUp($app);
 
-		$response->assertStatus( 404 );
-	}
-
-
-	protected function getEnvironmentSetUp( $app )
-	{
-		parent::getEnvironmentSetUp( $app );
-
-		$app['config']->set( 'shop.client.html.catalog.detail.url.target', 'aimeos_resolve' );
-	}
+        $app['config']->set('shop.client.html.catalog.detail.url.target', 'aimeos_resolve');
+    }
 }

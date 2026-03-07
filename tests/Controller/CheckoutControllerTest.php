@@ -1,35 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 class CheckoutControllerTest extends AimeosTestAbstract
 {
-	public function testConfirmAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+    public function testConfirmAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\CheckoutController@confirmAction', ['site' => 'unittest'] );
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\CheckoutController@confirmAction', ['site' => 'unittest']);
 
-		$this->assertResponseOk();
-	}
+        $this->assertResponseOk();
+    }
 
+    public function testIndexAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-	public function testIndexAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\CheckoutController@indexAction', ['site' => 'unittest']);
 
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\CheckoutController@indexAction', ['site' => 'unittest'] );
+        $this->assertResponseOk();
+        $this->assertStringContainsString('<div class="section checkout-standard-address"', $response->getContent());
+    }
 
-		$this->assertResponseOk();
-		$this->assertStringContainsString( '<div class="section checkout-standard-address"', $response->getContent() );
-	}
+    public function testUpdateAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\CheckoutController@updateAction', ['site' => 'unittest'], ['code' => 'paypalexpress']);
 
-	public function testUpdateAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
-
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\CheckoutController@updateAction', ['site' => 'unittest'], ['code' => 'paypalexpress'] );
-
-		$this->assertResponseOk();
-		$this->assertEquals( '', $response->getContent() );
-	}
+        $this->assertResponseOk();
+        $this->assertEquals('', $response->getContent());
+    }
 }

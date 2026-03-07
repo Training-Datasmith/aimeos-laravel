@@ -1,1 +1,4 @@
-<?php echo $aibody['checkout/update']; ?>
+<?php
+
+declare(strict_types=1);
+echo $aibody['checkout/update'];

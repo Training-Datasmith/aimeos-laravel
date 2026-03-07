@@ -1,1 +1,1 @@
-<?= $aibody['catalog/suggest'] ?>
+<?= $aibody['catalog/suggest'];

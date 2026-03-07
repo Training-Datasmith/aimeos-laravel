@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 class ContextTest extends AimeosTestAbstract
 {
-	public function testGetNoLocale()
-	{
-		$session = $this->getMockBuilder( '\Illuminate\Session\Store' )->disableOriginalConstructor()->getMock();
-		$config = $this->app->make( '\Aimeos\Shop\Base\Config' );
-		$locale = $this->app->make( '\Aimeos\Shop\Base\Locale' );
-		$i18n = $this->app->make( '\Aimeos\Shop\Base\I18n' );
+    public function testGetNoLocale()
+    {
+        $session = $this->getMockBuilder('\Illuminate\Session\Store')->disableOriginalConstructor()->getMock();
+        $config = $this->app->make('\Aimeos\Shop\Base\Config');
+        $locale = $this->app->make('\Aimeos\Shop\Base\Locale');
+        $i18n = $this->app->make('\Aimeos\Shop\Base\I18n');
 
-		$object = new \Aimeos\Shop\Base\Context( $session, $config, $locale, $i18n );
-		$ctx = $object->get( false );
+        $object = new \Aimeos\Shop\Base\Context($session, $config, $locale, $i18n);
+        $ctx = $object->get(false);
 
-		$this->assertInstanceOf( '\Aimeos\MShop\ContextIface', $ctx );
-		$this->assertIsArray( $ctx->groups() );
-	}
+        $this->assertInstanceOf('\Aimeos\MShop\ContextIface', $ctx);
+        $this->assertIsArray($ctx->groups());
+    }
 }

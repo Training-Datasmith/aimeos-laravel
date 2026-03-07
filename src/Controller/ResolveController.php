@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2023
  */
-
 
 namespace Aimeos\Shop\Controller;
 
@@ -13,156 +14,146 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
-
 
 /**
  * Aimeos controller for dispatching requests.
  */
 class ResolveController extends Controller
 {
-	private static array $fcn = [];
+    private static array $fcn = [];
 
+    /**
+     * Register a new resolver function.
+     *
+     * @param string $name Name of the resolver function
+     * @param \Closure $fcn Resolver function
+     */
+    public static function register(string $name, \Closure $fcn): void
+    {
+        self::$fcn[$name] = $fcn;
+    }
 
-	/**
-	 * Register a new resolver function.
-	 *
-	 * @param string $name Name of the resolver function
-	 * @param \Closure $fcn Resolver function
-	 */
-	public static function register( string $name, \Closure $fcn ): void
-	{
-		self::$fcn[$name] = $fcn;
-	}
+    /**
+     * Initializes the object.
+     */
+    public function __construct()
+    {
+        self::$fcn['product'] = (fn (\Aimeos\MShop\ContextIface $context, string $path) => $this->product($context, $path));
 
+        self::$fcn['catalog'] = (fn (\Aimeos\MShop\ContextIface $context, string $path) => $this->catalog($context, $path));
+    }
 
-	/**
-	 * Initializes the object.
-	 */
-	public function __construct()
-	{
-		self::$fcn['product'] = (fn(\Aimeos\MShop\ContextIface $context, string $path) => $this->product( $context, $path ));
+    /**
+     * Returns the html of the resolved URLs.
+     *
+     * @param \Illuminate\Http\Request $request Laravel request object
+     * @return \Illuminate\Http\Response Laravel response object containing the generated output
+     */
+    public function indexAction(\Illuminate\Http\Request $request)
+    {
+        if (($path = $request->route('path', $request->input('path'))) === null) {
+            abort(404);
+        }
 
-		self::$fcn['catalog'] = (fn(\Aimeos\MShop\ContextIface $context, string $path) => $this->catalog( $context, $path ));
-	}
+        $context = app('aimeos.context')->get(true);
 
+        foreach (array_reverse(self::$fcn) as $fcn) {
+            try {
+                return call_user_func_array($fcn->bindTo($this, static::class), [$context, $path]);
+            } catch (\Exception $e) {
+                if ($e->getCode() !== 404) {
+                    throw $e;
+                }
+            }
+        }
 
-	/**
-	 * Returns the html of the resolved URLs.
-	 *
-	 * @param \Illuminate\Http\Request $request Laravel request object
-	 * @return \Illuminate\Http\Response Laravel response object containing the generated output
-	 */
-	public function indexAction( \Illuminate\Http\Request $request )
-	{
-		if( ( $path = $request->route( 'path', $request->input( 'path' ) ) ) === null ) {
-			abort( 404 );
-		}
+        abort(404);
+    }
 
-		$context = app( 'aimeos.context' )->get( true );
+    /**
+     * Returns the category page if the give path can be resolved to a category.
+     *
+     * @param \Aimeos\MShop\ContextIface $context Context object
+     * @param string $path URL path to resolve
+     * @return Response Response object
+     */
+    protected function catalog(\Aimeos\MShop\ContextIface $context, string $path): ?\Illuminate\Http\Response
+    {
+        $item = \Aimeos\Controller\Frontend::create($context, 'catalog')->resolve($path);
+        $view = Shop::view();
 
-		foreach( array_reverse( self::$fcn ) as $fcn )
-		{
-			try {
-				return call_user_func_array( $fcn->bindTo( $this, static::class ), [$context, $path] );
-			} catch( \Exception $e ) {
-				if( $e->getCode() !== 404 ) throw $e;
-			}
-		}
+        $params = (Route::current() ? Route::current()->parameters() : []) + Request::all();
+        $params += ['path' => $path, 'f_name' => $path, 'f_catid' => $item->getId(), 'page' => 'page-catalog-tree'];
 
-		abort( 404 );
-	}
+        $helper = new \Aimeos\Base\View\Helper\Param\Standard($view, $params);
+        $view->addHelper('param', $helper);
 
+        foreach (app('config')->get('shop.page.catalog-tree') as $name) {
+            $client = (new Shop())->get();
 
-	/**
-	 * Returns the category page if the give path can be resolved to a category.
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object
-	 * @param string $path URL path to resolve
-	 * @return Response Response object
-	 */
-	protected function catalog( \Aimeos\MShop\ContextIface $context, string $path ) : ?\Illuminate\Http\Response
-	{
-		$item = \Aimeos\Controller\Frontend::create( $context, 'catalog' )->resolve( $path );
-		$view = Shop::view();
+            $params['aiheader'][$name] = $client->header();
+            $params['aibody'][$name] = $client->body();
+        }
 
-		$params = ( Route::current() ? Route::current()->parameters() : [] ) + Request::all();
-		$params += ['path' => $path, 'f_name' => $path, 'f_catid' => $item->getId(), 'page' => 'page-catalog-tree'];
+        return Response::view(Shop::template('catalog.tree'), $params)
+            ->header('Cache-Control', 'private, max-age=' . config('shop.cache_maxage', 30));
+    }
 
-		$helper = new \Aimeos\Base\View\Helper\Param\Standard( $view, $params );
-		$view->addHelper( 'param', $helper );
+    /**
+     * Returns the CMS page if the give path can be resolved to a CMS page.
+     *
+     * @param \Aimeos\MShop\ContextIface $context Context object
+     * @param string $path URL path to resolve
+     * @return Response Response object
+     */
+    protected function cms(\Aimeos\MShop\ContextIface $context, string $path): ?\Illuminate\Http\Response
+    {
+        \Aimeos\Controller\Frontend::create($context, 'cms')->resolve($path);
+        $view = Shop::view();
 
-		foreach( app( 'config' )->get( 'shop.page.catalog-tree' ) as $name )
-		{
-			$client = (new Shop())->get();
+        $params = (Route::current() ? Route::current()->parameters() : []) + Request::all();
+        $params += ['path' => $path, 'page' => 'page-index'];
 
-			$params['aiheader'][$name] = $client->header();
-			$params['aibody'][$name] = $client->body();
-		}
+        $helper = new \Aimeos\Base\View\Helper\Param\Standard($view, $params);
+        $view->addHelper('param', $helper);
 
-		return Response::view( Shop::template( 'catalog.tree' ), $params )
-			->header( 'Cache-Control', 'private, max-age=' . config( 'shop.cache_maxage', 30 ) );
-	}
+        foreach (app('config')->get('shop.page.cms') as $name) {
+            $client = (new Shop())->get();
 
+            $params['aiheader'][$name] = $client->header();
+            $params['aibody'][$name] = $client->body();
+        }
 
-	/**
-	 * Returns the CMS page if the give path can be resolved to a CMS page.
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object
-	 * @param string $path URL path to resolve
-	 * @return Response Response object
-	 */
-	protected function cms( \Aimeos\MShop\ContextIface $context, string $path ) : ?\Illuminate\Http\Response
-	{
-		\Aimeos\Controller\Frontend::create( $context, 'cms' )->resolve( $path );
-		$view = Shop::view();
+        return Response::view(Shop::template('page.index'), $params)
+            ->header('Cache-Control', 'private, max-age=' . config('shop.cache_maxage', 30));
+    }
 
-		$params = ( Route::current() ? Route::current()->parameters() : [] ) + Request::all();
-		$params += ['path' => $path, 'page' => 'page-index'];
+    /**
+     * Returns the product page if the give path can be resolved to a product.
+     *
+     * @param \Aimeos\MShop\ContextIface $context Context object
+     * @param string $path URL path to resolve
+     * @return Response Response object
+     */
+    protected function product(\Aimeos\MShop\ContextIface $context, string $path): ?\Illuminate\Http\Response
+    {
+        $item = \Aimeos\Controller\Frontend::create($context, 'product')->resolve($path);
+        $view = Shop::view();
 
-		$helper = new \Aimeos\Base\View\Helper\Param\Standard( $view, $params );
-		$view->addHelper( 'param', $helper );
+        $params = (Route::current() ? Route::current()->parameters() : []) + Request::all();
+        $params += ['path' => $path, 'd_name' => $path, 'd_prodid' => $item->getId(), 'page' => 'page-catalog-detail'];
 
-		foreach( app( 'config' )->get( 'shop.page.cms' ) as $name )
-		{
-			$client = (new Shop())->get();
+        $helper = new \Aimeos\Base\View\Helper\Param\Standard($view, $params);
+        $view->addHelper('param', $helper);
 
-			$params['aiheader'][$name] = $client->header();
-			$params['aibody'][$name] = $client->body();
-		}
+        foreach (app('config')->get('shop.page.catalog-detail') as $name) {
+            $client = (new Shop())->get();
 
-		return Response::view( Shop::template( 'page.index' ), $params )
-			->header( 'Cache-Control', 'private, max-age=' . config( 'shop.cache_maxage', 30 ) );
-	}
+            $params['aiheader'][$name] = $client->header();
+            $params['aibody'][$name] = $client->body();
+        }
 
-
-	/**
-	 * Returns the product page if the give path can be resolved to a product.
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context object
-	 * @param string $path URL path to resolve
-	 * @return Response Response object
-	 */
-	protected function product( \Aimeos\MShop\ContextIface $context, string $path ) : ?\Illuminate\Http\Response
-	{
-		$item = \Aimeos\Controller\Frontend::create( $context, 'product' )->resolve( $path );
-		$view = Shop::view();
-
-		$params = ( Route::current() ? Route::current()->parameters() : [] ) + Request::all();
-		$params += ['path' => $path, 'd_name' => $path, 'd_prodid' => $item->getId(), 'page' => 'page-catalog-detail'];
-
-		$helper = new \Aimeos\Base\View\Helper\Param\Standard( $view, $params );
-		$view->addHelper( 'param', $helper );
-
-		foreach( app( 'config' )->get( 'shop.page.catalog-detail' ) as $name )
-		{
-			$client = (new Shop())->get();
-
-			$params['aiheader'][$name] = $client->header();
-			$params['aibody'][$name] = $client->body();
-		}
-
-		return Response::view( Shop::template( 'catalog.detail' ), $params )
-			->header( 'Cache-Control', 'private, max-age=' . config( 'shop.cache_maxage', 30 ) );
-	}
+        return Response::view(Shop::template('catalog.detail'), $params)
+            ->header('Cache-Control', 'private, max-age=' . config('shop.cache_maxage', 30));
+    }
 }

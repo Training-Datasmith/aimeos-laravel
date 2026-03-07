@@ -1,13 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2019-2023
  */
 
-
 namespace Aimeos\Shop\Facades;
-
 
 /**
  * Returns the HTML clients
@@ -16,13 +16,13 @@ namespace Aimeos\Shop\Facades;
  */
 class Shop extends \Illuminate\Support\Facades\Facade
 {
-	/**
-	 * Get the registered name of the component.
-	 *
-	 * @return string
-	 */
-	protected static function getFacadeAccessor()
-	{
-		return 'aimeos.shop';
-	}
+    /**
+     * Get the registered name of the component.
+     *
+     * @return string
+     */
+    protected static function getFacadeAccessor()
+    {
+        return 'aimeos.shop';
+    }
 }

@@ -1,1 +1,4 @@
-<?php echo $aibody['catalog/count']; ?>
+<?php
+
+declare(strict_types=1);
+echo $aibody['catalog/count'];

@@ -1,131 +1,123 @@
 <?php
 
+declare(strict_types=1);
+
 class JqadmControllerTest extends AimeosTestAbstract
 {
-	public function testFileActionCss()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+    public function testFileActionCss()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JqadmController@fileAction', ['site' => 'unittest', 'name' => 'index-css', 'locale' => 'en'] );
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\JqadmController@fileAction', ['site' => 'unittest', 'name' => 'index-css', 'locale' => 'en']);
 
-		$this->assertResponseOk();
-		$this->assertStringContainsString( '.aimeos', $response->getContent() );
-	}
+        $this->assertResponseOk();
+        $this->assertStringContainsString('.aimeos', $response->getContent());
+    }
 
+    public function testFileActionJs()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-	public function testFileActionJs()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\JqadmController@fileAction', ['site' => 'unittest', 'name' => 'index-js', 'locale' => 'en']);
 
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JqadmController@fileAction', ['site' => 'unittest', 'name' => 'index-js', 'locale' => 'en'] );
+        $this->assertResponseOk();
+        $this->assertStringContainsString('Aimeos = {', $response->getContent());
+    }
 
-		$this->assertResponseOk();
-		$this->assertStringContainsString( 'Aimeos = {', $response->getContent() );
-	}
+    public function testBatchAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
+        $params = ['site' => 'unittest', 'resource' => 'product', 'id' => ['0', '1']];
+        $response = $this->action('POST', '\Aimeos\Shop\Controller\JqadmController@batchAction', $params);
 
-	public function testBatchAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+        $this->assertEquals(302, $response->getStatusCode());
+    }
 
-		$params = ['site' => 'unittest', 'resource' => 'product', 'id' => ['0', '1']];
-		$response = $this->action( 'POST', '\Aimeos\Shop\Controller\JqadmController@batchAction', $params );
+    public function testCopyAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-		$this->assertEquals( 302, $response->getStatusCode() );
-	}
+        $params = ['site' => 'unittest', 'resource' => 'product', 'id' => '0'];
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\JqadmController@copyAction', $params);
 
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('item-product', $response->getContent());
+    }
 
-	public function testCopyAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+    public function testCreateAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-		$params = ['site' => 'unittest', 'resource' => 'product', 'id' => '0'];
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JqadmController@copyAction', $params );
+        $params = ['site' => 'unittest', 'resource' => 'product'];
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\JqadmController@createAction', $params);
 
-		$this->assertEquals( 200, $response->getStatusCode() );
-		$this->assertStringContainsString( 'item-product', $response->getContent() );
-	}
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('list-items', $response->getContent());
+    }
 
+    public function testDeleteAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
+        $this->app['session']->setPreviousUrl('http://localhost/unittest');
 
-	public function testCreateAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+        $params = ['site' => 'unittest', 'resource' => 'product', 'id' => '0'];
+        $response = $this->action('POST', '\Aimeos\Shop\Controller\JqadmController@deleteAction', $params);
 
-		$params = ['site' => 'unittest', 'resource' => 'product'];
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JqadmController@createAction', $params );
+        $this->assertEquals(302, $response->getStatusCode());
+    }
 
-		$this->assertEquals( 200, $response->getStatusCode() );
-		$this->assertStringContainsString( 'list-items', $response->getContent() );
-	}
+    public function testExportAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
+        $params = ['site' => 'unittest', 'resource' => 'order'];
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\JqadmController@exportAction', $params);
 
-	public function testDeleteAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
-		$this->app['session']->setPreviousUrl( 'http://localhost/unittest' );
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('list-items', $response->getContent());
+    }
 
-		$params = ['site' => 'unittest', 'resource' => 'product', 'id' => '0'];
-		$response = $this->action( 'POST', '\Aimeos\Shop\Controller\JqadmController@deleteAction', $params );
+    public function testGetAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-		$this->assertEquals( 302, $response->getStatusCode() );
-	}
+        $params = ['site' => 'unittest', 'resource' => 'product', 'id' => '0'];
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\JqadmController@getAction', $params);
 
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('item-product', $response->getContent());
+    }
 
-	public function testExportAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+    public function testSaveAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
+        $this->app['session']->setPreviousUrl('http://localhost/unittest');
 
-		$params = ['site' => 'unittest', 'resource' => 'order'];
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JqadmController@exportAction', $params );
+        $params = ['site' => 'unittest', 'resource' => 'product', 'item' => ['product.code' => 'jqadmSaveTest']];
+        $response = $this->action('POST', '\Aimeos\Shop\Controller\JqadmController@saveAction', $params);
 
-		$this->assertEquals( 200, $response->getStatusCode() );
-		$this->assertStringContainsString( 'list-items', $response->getContent() );
-	}
+        $this->assertEquals(302, $response->getStatusCode());
+    }
 
+    public function testSearchAction()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
-	public function testGetAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
+        $params = ['site' => 'unittest', 'resource' => 'product'];
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\JqadmController@searchAction', $params);
 
-		$params = ['site' => 'unittest', 'resource' => 'product', 'id' => '0'];
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JqadmController@getAction', $params );
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('list-items', $response->getContent());
+    }
 
-		$this->assertEquals( 200, $response->getStatusCode() );
-		$this->assertStringContainsString( 'item-product', $response->getContent() );
-	}
+    public function testSearchActionSite()
+    {
+        View::addLocation(dirname(__DIR__) . '/fixtures/views');
 
+        $params = ['site' => 'invalid', 'resource' => 'product'];
+        $response = $this->action('GET', '\Aimeos\Shop\Controller\JqadmController@searchAction', $params);
 
-	public function testSaveAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
-		$this->app['session']->setPreviousUrl( 'http://localhost/unittest' );
-
-		$params = ['site' => 'unittest', 'resource' => 'product', 'item' => ['product.code' => 'jqadmSaveTest']];
-		$response = $this->action( 'POST', '\Aimeos\Shop\Controller\JqadmController@saveAction', $params );
-
-		$this->assertEquals( 302, $response->getStatusCode() );
-	}
-
-
-	public function testSearchAction()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
-
-		$params = ['site' => 'unittest', 'resource' => 'product'];
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JqadmController@searchAction', $params );
-
-		$this->assertEquals( 200, $response->getStatusCode() );
-		$this->assertStringContainsString( 'list-items', $response->getContent() );
-	}
-
-
-	public function testSearchActionSite()
-	{
-		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
-
-		$params = ['site' => 'invalid', 'resource' => 'product'];
-		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JqadmController@searchAction', $params );
-
-		$this->assertEquals( 500, $response->getStatusCode() );
-	}
+        $this->assertEquals(500, $response->getStatusCode());
+    }
 }

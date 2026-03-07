@@ -1,90 +1,86 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2015-2023
  */
 
-
 namespace Aimeos\Shop\Command;
 
 use Illuminate\Console\Command;
-
 
 /**
  * Command for executing the Aimeos job controllers
  */
 class JobsCommand extends AbstractCommand
 {
-	/**
-	 * The name and signature of the console command.
-	 *
-	 * @var string
-	 */
-	protected $signature = 'aimeos:jobs
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'aimeos:jobs
 		{jobs : One or more job controller names like "admin/job customer/email/watch"}
 		{site? : Site codes to execute the jobs for like "default unittest" (none for all)}
 		{--option= : Setup configuration, name and value are separated by colon like "setup/default/demo:1"}
 	';
 
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = 'Executes the job controllers';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Executes the job controllers';
 
-
-	/**
+    /**
      * Execute the console command.
      */
     public function handle(): void
-	{
-		$jobs = $this->argument( 'jobs' );
-		$jobs = !is_array( $jobs ) ? explode( ' ', (string) $jobs ) : $jobs;
+    {
+        $jobs = $this->argument('jobs');
+        $jobs = !is_array($jobs) ? explode(' ', (string) $jobs) : $jobs;
 
-		$fcn = function( \Aimeos\MShop\ContextIface $lcontext, \Aimeos\Bootstrap $aimeos ) use ( $jobs ): void
-		{
-			$jobfcn = function( $context, $aimeos, $jobname ): void {
-				\Aimeos\Controller\Jobs::create( $context, $aimeos, $jobname )->run();
-			};
+        $fcn = function (\Aimeos\MShop\ContextIface $lcontext, \Aimeos\Bootstrap $aimeos) use ($jobs): void {
+            $jobfcn = function ($context, $aimeos, $jobname): void {
+                \Aimeos\Controller\Jobs::create($context, $aimeos, $jobname)->run();
+            };
 
-			$process = $lcontext->process();
-			$site = $lcontext->locale()->getSiteItem()->getCode();
+            $process = $lcontext->process();
+            $site = $lcontext->locale()->getSiteItem()->getCode();
 
-			foreach( $jobs as $jobname )
-			{
-				$this->info( sprintf( 'Executing Aimeos jobs "%s" for "%s"', $jobname, $site ), 'v' );
-				$process->start( $jobfcn, [$lcontext, $aimeos, $jobname], false );
-			}
+            foreach ($jobs as $jobname) {
+                $this->info(sprintf('Executing Aimeos jobs "%s" for "%s"', $jobname, $site), 'v');
+                $process->start($jobfcn, [$lcontext, $aimeos, $jobname], false);
+            }
 
-			$process->wait();
-		};
+            $process->wait();
+        };
 
-		$this->exec( $this->context(), $fcn, $this->argument( 'site' ) );
-	}
+        $this->exec($this->context(), $fcn, $this->argument('site'));
+    }
 
+    /**
+     * Returns a context object
+     *
+     * @return \Aimeos\MShop\ContextIface Context object
+     */
+    protected function context(): \Aimeos\MShop\ContextIface
+    {
+        $lv = $this->getLaravel();
+        $context = $lv->make('aimeos.context')->get(false, 'command');
 
-	/**
-	 * Returns a context object
-	 *
-	 * @return \Aimeos\MShop\ContextIface Context object
-	 */
-	protected function context() : \Aimeos\MShop\ContextIface
-	{
-		$lv = $this->getLaravel();
-		$context = $lv->make( 'aimeos.context' )->get( false, 'command' );
+        $langManager = \Aimeos\MShop::create($context, 'locale/language');
+        $langids = $langManager->search($langManager->filter(true))->keys()->toArray();
+        $i18n = $lv->make('aimeos.i18n')->get($langids);
 
-		$langManager = \Aimeos\MShop::create( $context, 'locale/language' );
-		$langids = $langManager->search( $langManager->filter( true ) )->keys()->toArray();
-		$i18n = $lv->make( 'aimeos.i18n' )->get( $langids );
+        $context->setSession(new \Aimeos\Base\Session\None());
+        $context->setCache(new \Aimeos\Base\Cache\None());
 
-		$context->setSession( new \Aimeos\Base\Session\None() );
-		$context->setCache( new \Aimeos\Base\Cache\None() );
+        $context->setEditor('aimeos:jobs');
+        $context->setI18n($i18n);
 
-		$context->setEditor( 'aimeos:jobs' );
-		$context->setI18n( $i18n );
-
-		return $this->addConfig( $context );
-	}
+        return $this->addConfig($context);
+    }
 }
