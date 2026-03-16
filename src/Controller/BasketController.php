@@ -33,6 +33,6 @@ class BasketController extends Controller
         }
 
         return Response::view(Shop::template('basket.index'), $params)
-            ->header('Cache-Control', 'no-store, , max-age=0');
+            ->header('Cache-Control', 'no-store, max-age=0');
     }
 }

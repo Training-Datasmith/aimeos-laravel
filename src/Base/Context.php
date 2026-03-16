@@ -226,7 +226,7 @@ class Context
     protected function addToken(\Aimeos\MShop\ContextIface $context): \Aimeos\MShop\ContextIface
     {
         if (($token = Session::get('token')) === null) {
-            Session::put('token', $token = Session::getId());
+            Session::put('token', $token = bin2hex(random_bytes(32)));
         }
 
         return $context->setToken($token);

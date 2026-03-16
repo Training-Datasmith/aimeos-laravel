@@ -26,7 +26,7 @@ abstract class AbstractCommand extends Command
         $config = $ctx->config();
 
         foreach ((array) $this->option('option') as $option) {
-            [$name, $value] = explode(':', (string) $option);
+            [$name, $value] = explode(':', (string) $option, 2);
             $config->set($name, $value);
         }
 

@@ -281,7 +281,7 @@ class JqadmController extends AdminController
             'site' => $site,
             'locale' => $lang,
             'localeDir' => in_array($lang, ['ar', 'az', 'dv', 'fa', 'he', 'ku', 'ur']) ? 'rtl' : 'ltr',
-            'theme' => ($_COOKIE['aimeos_backend_theme'] ?? '') == 'dark' ? 'dark' : 'light',
+            'theme' => request()->cookie('aimeos_backend_theme') === 'dark' ? 'dark' : 'light',
         ]);
     }
 }
