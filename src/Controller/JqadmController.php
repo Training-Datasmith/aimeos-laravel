@@ -1,287 +1,226 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2015-2023
  */
-
 namespace Aimeos\Shop\Controller;
 
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Auth\Access\Authorizes_Requests;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
-
 /**
  * Aimeos controller for the JQuery admin interface
  */
-class JqadmController extends AdminController
+class Jqadm_Controller extends Admin_Controller
 {
-    use AuthorizesRequests;
-
+    use Authorizes_Requests;
     /**
      * Returns the JS file content
      *
      * @return \Illuminate\Http\Response Response object containing the generated output
      */
-    public function fileAction()
+    public function file_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
         $files = [];
         $aimeos = app('aimeos')->get();
         $name = Route::input('name', Request::get('name'));
-
-        foreach ($aimeos->getCustomPaths('admin/jqadm') as $base => $paths) {
+        foreach ($aimeos->get_custom_paths('admin/jqadm') as $base => $paths) {
             foreach ($paths as $path) {
                 $files[] = $base . '/' . $path;
             }
         }
-
-        $response = response(\Aimeos\Admin\JQAdm\Bundle::get($files, $name));
-
+        $response = response(\Aimeos\Admin\Jq_Adm\Bundle::get($files, $name));
         if (str_ends_with($name, 'js')) {
             $response->header('Content-Type', 'application/javascript');
         } elseif (str_ends_with($name, 'css')) {
             $response->header('Content-Type', 'text/css');
         }
-
         return $response->header('Cache-Control', 'public, max-age=3600');
     }
-
     /**
      * Returns the HTML code for batch operations on a resource object
      *
      * @return string Generated output
      */
-    public function batchAction()
+    public function batch_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->batch()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Returns the HTML code for a copy of a resource object
      *
      * @return string Generated output
      */
-    public function copyAction()
+    public function copy_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->copy()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Returns the HTML code for a new resource object
      *
      * @return string Generated output
      */
-    public function createAction()
+    public function create_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->create()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Deletes the resource object or a list of resource objects
      *
      * @return string Generated output
      */
-    public function deleteAction()
+    public function delete_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->delete()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Exports the data for a resource object
      *
      * @return string Generated output
      */
-    public function exportAction()
+    public function export_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->export()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Returns the HTML code for the requested resource object
      *
      * @return string Generated output
      */
-    public function getAction()
+    public function get_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->get()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Imports the data for a resource object
      *
      * @return string Generated output
      */
-    public function importAction()
+    public function import_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->import()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Saves a new resource object
      *
      * @return string Generated output
      */
-    public function saveAction()
+    public function save_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->save()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Returns the HTML code for a list of resource objects
      *
      * @return string Generated output
      */
-    public function searchAction()
+    public function search_action()
     {
         if (config('shop.authorize', true)) {
-            $this->authorize('admin', [JqadmController::class, config('shop.roles', ['admin', 'editor'])]);
+            $this->authorize('admin', [Jqadm_Controller::class, config('shop.roles', ['admin', 'editor'])]);
         }
-
-        $cntl = $this->createAdmin();
-
+        $cntl = $this->create_admin();
         if (($html = $cntl->search()) == '') {
             return $cntl->response();
         }
-
-        return $this->getHtml((string) $html);
+        return $this->get_html((string) $html);
     }
-
     /**
      * Returns the resource controller
      *
      * @return \Aimeos\Admin\JQAdm\Iface JQAdm client
      */
-    protected function createAdmin(): \Aimeos\Admin\JQAdm\Iface
+    protected function create_admin(): \Aimeos\Admin\Jq_Adm\Iface
     {
         $site = Route::input('site', Request::get('site', config('shop.mshop.locale.site', 'default')));
         $lang = Request::get('locale', config('app.locale', 'en'));
         $resource = Route::input('resource');
-
         $aimeos = app('aimeos')->get();
-
         $context = app('aimeos.context')->get(false, 'backend');
-        $context->setI18n(app('aimeos.i18n')->get([ $lang, 'en' ]));
-        $context->setLocale(app('aimeos.locale')->getBackend($context, $site)->setLanguageId($lang));
-
-        $siteManager = \Aimeos\MShop::create($context, 'locale/site');
-        $context->config()->apply($siteManager->find($site)->getConfig());
-
-        $paths = $aimeos->getTemplatePaths('admin/jqadm/templates', $context->locale()->getSiteItem()->getTheme());
+        $context->set_i18n(app('aimeos.i18n')->get([$lang, 'en']));
+        $context->set_locale(app('aimeos.locale')->get_backend($context, $site)->set_language_id($lang));
+        $site_manager = \Aimeos\M_Shop::create($context, 'locale/site');
+        $context->config()->apply($site_manager->find($site)->get_config());
+        $paths = $aimeos->get_template_paths('admin/jqadm/templates', $context->locale()->get_site_item()->get_theme());
         $view = app('aimeos.view')->create($context, $paths, $lang);
-
-        $view->aimeosType = 'Laravel';
-        $view->aimeosVersion = app('aimeos')->getVersion();
-        $view->aimeosExtensions = implode(',', $aimeos->getExtensions());
-
-        $context->setView($view);
-
-        return \Aimeos\Admin\JQAdm::create($context, $aimeos, $resource);
+        $view->aimeos_type = 'Laravel';
+        $view->aimeos_version = app('aimeos')->get_version();
+        $view->aimeos_extensions = implode(',', $aimeos->get_extensions());
+        $context->set_view($view);
+        return \Aimeos\Admin\Jq_Adm::create($context, $aimeos, $resource);
     }
-
     /**
      * Returns the generated HTML code
      *
      * @param string $content Content from admin client
      * @return \Illuminate\Contracts\View\View View for rendering the output
      */
-    protected function getHtml(string $content)
+    protected function get_html(string $content)
     {
         $site = Route::input('site', Request::get('site', config('shop.mshop.locale.site', 'default')));
         $lang = Request::get('locale', config('app.locale', 'en'));
-
-        return View::make('shop::jqadm.index', [
-            'content' => $content,
-            'site' => $site,
-            'locale' => $lang,
-            'localeDir' => in_array($lang, ['ar', 'az', 'dv', 'fa', 'he', 'ku', 'ur']) ? 'rtl' : 'ltr',
-            'theme' => request()->cookie('aimeos_backend_theme') === 'dark' ? 'dark' : 'light',
-        ]);
+        return View::make('shop::jqadm.index', ['content' => $content, 'site' => $site, 'locale' => $lang, 'localeDir' => in_array($lang, ['ar', 'az', 'dv', 'fa', 'he', 'ku', 'ur']) ? 'rtl' : 'ltr', 'theme' => request()->cookie('aimeos_backend_theme') === 'dark' ? 'dark' : 'light']);
     }
 }

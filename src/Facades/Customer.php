@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2019-2023
  */
-
 namespace Aimeos\Shop\Facades;
 
 /**
@@ -19,7 +17,7 @@ class Customer extends \Illuminate\Support\Facades\Facade
      *
      * @return \Aimeos\Controller\Frontend\Customer\Iface
      */
-    protected static function getFacadeAccessor()
+    protected static function get_facade_accessor()
     {
         return 'aimeos.frontend.customer';
     }

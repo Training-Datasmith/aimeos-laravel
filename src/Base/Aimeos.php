@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2015-2023
  */
-
 namespace Aimeos\Shop\Base;
 
 /**
@@ -18,12 +16,10 @@ class Aimeos
      * @var \Illuminate\Contracts\Config\Repository
      */
     private $config;
-
     /**
      * @var \Aimeos\Bootstrap
      */
     private $object;
-
     /**
      * Initializes the object
      *
@@ -33,7 +29,6 @@ class Aimeos
     {
         $this->config = $config;
     }
-
     /**
      * Returns the Aimeos object.
      *
@@ -43,35 +38,28 @@ class Aimeos
     {
         if ($this->object === null) {
             $dir = base_path('ext');
-
             if (!is_dir($dir)) {
                 $dir = dirname(__DIR__, 4) . DIRECTORY_SEPARATOR . 'ext';
             }
-
-            $extDirs = (array) $this->config->get('shop.extdir', $dir);
-            $this->object = new \Aimeos\Bootstrap($extDirs, false);
+            $ext_dirs = (array) $this->config->get('shop.extdir', $dir);
+            $this->object = new \Aimeos\Bootstrap($ext_dirs, false);
         }
-
         return $this->object;
     }
-
     /**
      * Returns the version of the Aimeos package
      *
      * @return string Version string
      */
-    public function getVersion(): string
+    public function get_version(): string
     {
-        if (($content = @file_get_contents(base_path('composer.lock'))) !== false
-            && ($content = json_decode($content, true)) !== null && isset($content['packages'])
-        ) {
+        if (($content = @file_get_contents(base_path('composer.lock'))) !== false && ($content = json_decode($content, true)) !== null && isset($content['packages'])) {
             foreach ((array) $content['packages'] as $item) {
                 if ($item['name'] === 'aimeos/aimeos-laravel') {
                     return $item['version'];
                 }
             }
         }
-
         return '';
     }
 }

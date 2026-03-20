@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2015-2023
  */
-
 namespace Aimeos\Shop\Base;
 
 /**
@@ -18,9 +16,7 @@ class I18n
      * @var \Illuminate\Contracts\Config\Repository
      */
     private $config;
-
     private array $i18n = [];
-
     /**
      * Initializes the object
      *
@@ -31,33 +27,27 @@ class I18n
     {
         $this->config = $config;
     }
-
     /**
      * Creates new translation objects.
      *
      * @param array $languageIds List of two letter ISO language IDs
      * @return \Aimeos\Base\Translation\Iface[] List of translation objects
      */
-    public function get(array $languageIds): array
+    public function get(array $language_ids): array
     {
-        $i18nPaths = $this->aimeos->get()->getI18nPaths();
-
-        foreach ($languageIds as $langid) {
+        $i18n_paths = $this->aimeos->get()->get_i18n_paths();
+        foreach ($language_ids as $langid) {
             if (!isset($this->i18n[$langid])) {
-                $i18n = new \Aimeos\Base\Translation\Gettext($i18nPaths, $langid);
-
+                $i18n = new \Aimeos\Base\Translation\Gettext($i18n_paths, $langid);
                 if ($this->config->get('shop.apc_enabled', false) == true) {
                     $i18n = new \Aimeos\Base\Translation\Decorator\APC($i18n, $this->config->get('shop.apc_prefix', 'laravel:'));
                 }
-
                 if ($this->config->has('shop.i18n.' . $langid)) {
                     $i18n = new \Aimeos\Base\Translation\Decorator\Memory($i18n, $this->config->get('shop.i18n.' . $langid));
                 }
-
                 $this->i18n[$langid] = $i18n;
             }
         }
-
         return $this->i18n;
     }
 }

@@ -1,24 +1,20 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2015-2023
  */
-
 namespace Aimeos\Shop\Base;
 
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
-
 /**
  * Service providing the supporting functionality
  */
 class Support
 {
     private array $access = [];
-
     /**
      * Initializes the object
      *
@@ -28,7 +24,6 @@ class Support
     public function __construct(private readonly \Aimeos\Shop\Base\Context $context, private readonly \Aimeos\Shop\Base\Locale $locale)
     {
     }
-
     /**
      * Checks if the user is in the specified group and associatied to the site
      *
@@ -36,37 +31,29 @@ class Support
      * @param string|array $groupcodes Unique user/customer group codes that are allowed
      * @return bool True if user is part of the group, false if not
      */
-    public function checkUserGroup(\Illuminate\Foundation\Auth\User $user, $groupcodes): bool
+    public function check_user_group(\Illuminate\Foundation\Auth\User $user, $groupcodes): bool
     {
-        $groups = (is_array($groupcodes) ? implode(',', $groupcodes) : $groupcodes);
-
+        $groups = is_array($groupcodes) ? implode(',', $groupcodes) : $groupcodes;
         if (isset($this->access[$user->id][$groups])) {
             return $this->access[$user->id][$groups];
         }
-
         $this->access[$user->id][$groups] = false;
-
         $context = $this->context->get(false);
         $siteid = current(array_reverse(explode('.', trim($user->siteid, '.'))));
-
         if ($siteid) {
-            $site = \Aimeos\MShop::create($context, 'locale/site')->get($siteid)->getCode();
+            $site = \Aimeos\M_Shop::create($context, 'locale/site')->get($siteid)->get_code();
         } else {
             $site = config('shop.mshop.locale.site', 'default');
         }
-
-        $site = (Route::current() ? Route::input('site', Request::get('site', $site)) : $site);
-        $context->setLocale($this->locale->getBackend($context, $site));
-
-        foreach (array_reverse($context->locale()->getSitePath()) as $siteid) {
+        $site = Route::current() ? Route::input('site', Request::get('site', $site)) : $site;
+        $context->set_locale($this->locale->get_backend($context, $site));
+        foreach (array_reverse($context->locale()->get_site_path()) as $siteid) {
             if ($user->siteid === '' || $user->siteid === $siteid) {
-                $this->access[$user->id][$groups] = $this->checkGroups($context, $user->id, $groupcodes);
+                $this->access[$user->id][$groups] = $this->check_groups($context, $user->id, $groupcodes);
             }
         }
-
         return $this->access[$user->id][$groups];
     }
-
     /**
      * Checks if one of the groups is associated to the given user ID
      *
@@ -75,24 +62,16 @@ class Support
      * @param string[]|string $groupcodes List of group codes to check against
      * @return bool True if the user is in one of the groups, false if not
      */
-    protected function checkGroups(\Aimeos\MShop\ContextIface $context, string $userid, $groupcodes): bool
+    protected function check_groups(\Aimeos\M_Shop\Context_Iface $context, string $userid, $groupcodes): bool
     {
-        $manager = \Aimeos\MShop::create($context, 'group');
-
+        $manager = \Aimeos\M_Shop::create($context, 'group');
         $search = $manager->filter();
-        $search->setConditions($search->compare('==', 'group.code', (array) $groupcodes));
-        $groupIds = $manager->search($search)->keys()->toArray();
-
-        $manager = \Aimeos\MShop::create($context, 'customer/lists');
-
+        $search->set_conditions($search->compare('==', 'group.code', (array) $groupcodes));
+        $group_ids = $manager->search($search)->keys()->to_array();
+        $manager = \Aimeos\M_Shop::create($context, 'customer/lists');
         $search = $manager->filter()->slice(0, 1);
-        $expr = [
-            $search->compare('==', 'customer.lists.parentid', $userid),
-            $search->compare('==', 'customer.lists.refid', $groupIds),
-            $search->compare('==', 'customer.lists.domain', 'group'),
-        ];
-        $search->setConditions($search->combine('&&', $expr));
-
-        return !$manager->search($search)->isEmpty();
+        $expr = [$search->compare('==', 'customer.lists.parentid', $userid), $search->compare('==', 'customer.lists.refid', $group_ids), $search->compare('==', 'customer.lists.domain', 'group')];
+        $search->set_conditions($search->combine('&&', $expr));
+        return !$manager->search($search)->is_empty();
     }
 }

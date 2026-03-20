@@ -1,74 +1,60 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2015-2023
  */
-
 namespace Aimeos\Shop\Controller;
 
 use Aimeos\Shop\Facades\Shop;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Response;
-
 /**
  * Aimeos controller for checkout related functionality.
  */
-class CheckoutController extends Controller
+class Checkout_Controller extends Controller
 {
     /**
      * Returns the html for the checkout confirmation page.
      *
      * @return \Illuminate\Http\Response Response object with output and headers
      */
-    public function confirmAction()
+    public function confirm_action()
     {
         $params = ['page' => 'page-checkout-confirm'];
-
         foreach (app('config')->get('shop.page.checkout-confirm') as $name) {
             $params['aiheader'][$name] = (new Shop())->get()->header();
             $params['aibody'][$name] = (new Shop())->get()->body();
         }
-
-        return Response::view(Shop::template('checkout.confirm'), $params)
-            ->header('Cache-Control', 'no-store, max-age=0');
+        return Response::view(Shop::template('checkout.confirm'), $params)->header('Cache-Control', 'no-store, max-age=0');
     }
-
     /**
      * Returns the html for the standard checkout page.
      *
      * @return \Illuminate\Http\Response Response object with output and headers
      */
-    public function indexAction()
+    public function index_action()
     {
         $params = ['page' => 'page-checkout-index'];
-
         foreach (app('config')->get('shop.page.checkout-index') as $name) {
             $params['aiheader'][$name] = (new Shop())->get()->header();
             $params['aibody'][$name] = (new Shop())->get()->body();
         }
-
-        return Response::view(Shop::template('checkout.index'), $params)
-            ->header('Cache-Control', 'no-store, max-age=0');
+        return Response::view(Shop::template('checkout.index'), $params)->header('Cache-Control', 'no-store, max-age=0');
     }
-
     /**
      * Returns the view for the order update page.
      *
      * @return \Illuminate\Http\Response Response object with output and headers
      */
-    public function updateAction()
+    public function update_action()
     {
         $params = ['page' => 'page-checkout-update'];
-
         foreach (app('config')->get('shop.page.checkout-update') as $name) {
             $params['aiheader'][$name] = (new Shop())->get()->header();
             $params['aibody'][$name] = (new Shop())->get()->body();
         }
-
-        return Response::view(Shop::template('checkout.update'), $params)
-            ->header('Cache-Control', 'no-store, max-age=0');
+        return Response::view(Shop::template('checkout.update'), $params)->header('Cache-Control', 'no-store, max-age=0');
     }
 }

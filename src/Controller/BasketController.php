@@ -1,38 +1,32 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * @license MIT, http://opensource.org/licenses/MIT
  * @copyright Aimeos (aimeos.org), 2015-2023
  */
-
 namespace Aimeos\Shop\Controller;
 
 use Aimeos\Shop\Facades\Shop;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Response;
-
 /**
  * Aimeos controller for basket related functionality.
  */
-class BasketController extends Controller
+class Basket_Controller extends Controller
 {
     /**
      * Returns the html for the standard basket page.
      *
      * @return \Illuminate\Http\Response Response object with output and headers
      */
-    public function indexAction()
+    public function index_action()
     {
         $params = ['page' => 'page-basket-index'];
-
         foreach (app('config')->get('shop.page.basket-index') as $name) {
             $params['aiheader'][$name] = (new Shop())->get()->header();
             $params['aibody'][$name] = (new Shop())->get()->body();
         }
-
-        return Response::view(Shop::template('basket.index'), $params)
-            ->header('Cache-Control', 'no-store, max-age=0');
+        return Response::view(Shop::template('basket.index'), $params)->header('Cache-Control', 'no-store, max-age=0');
     }
 }
